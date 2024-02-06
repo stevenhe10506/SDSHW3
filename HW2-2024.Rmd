@@ -1,0 +1,108 @@
+---
+title: "HW3-2024"
+author: "Steven He"
+date: "2024-02-04"
+output: html_document
+---
+EID: shh957
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE ,echo = FALSE)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(mosaic)
+```
+
+## Question 1
+### Part A
+
+```{r}
+creat <- read.csv("creatinine.csv")
+creatmodel <-lm(creatclear ~ age, data = creat)
+coef(creatmodel)
+147.813 - .62*(55)
+```
+
+We can expect a 55 year old to have a creatinine clearance rate of 113.713 ml/min. We can predict this by creating a linear model with the data, creating the equation 147.813 -.619 (age), and plugging 55 for the age.  
+
+### Part B
+
+For every year of age creatinine clearance drops by .61 ml/min. We get this number from the slope of our linear model equation.
+
+### Part C
+
+```{r}
+135 - (147.813 - .62*(40))
+112 - (147.813 - .62*(60))
+```
+
+The 40 year old has a healthier clearance rate for their age because their residual from our predict model is higher than the 60 year old. We subtracted both subjects' creatinine clearance from the predict clearance rate from the model for their age. Because the 40 year old has a higher residual, they have a higher clearance rate than what the model predicts a 40 year old should have, and is therefore healthier than the 60 year old with a lower residual. 
+
+## Question 2
+### Part 1
+
+The beat of a stock is the measure of the systemic risk of a stock, or the percent change of a stock's return for every 1 percent change in the market. A low risk stock would have a low beta because for every 1 percent change in the market, positive or negative, the return of the stock won't change substantially. A high risk stock has a higher beta since it's return would change much more for every 1 percent change in the market, positive or negative, and is therefore higher risk. Because beta describes a stock's change per 1 percent change in the market, it is used as the slope value for the CAPM to calculaute the rate of return for an inidividual asset using the return rate of the overall market. 
+
+### Part 2
+
+```{r}
+stocks <- read.csv("marketmodel.csv")
+stockTable <- tibble()
+stockTable <- rbind(stockTable, tibble(Stock = "AAPL", Intercept = coef(lm(AAPL ~ SPY, data = stocks))[1], Slope = coef(lm(AAPL ~ SPY, data = stocks))[2], RSquared = cor(stocks$AAPL, stocks$SPY)^2))
+
+stockTable <- rbind(stockTable, tibble(Stock = "GOOG", Intercept = coef(lm(GOOG ~ SPY, data = stocks))[1], Slope = coef(lm(GOOG ~ SPY, data = stocks))[2], RSquared = cor(stocks$GOOG, stocks$SPY)^2))
+
+stockTable <- rbind(stockTable, tibble(Stock = "MRK", Intercept = coef(lm(MRK ~ SPY, data = stocks))[1], Slope = coef(lm(MRK ~ SPY, data = stocks))[2], RSquared = cor(stocks$MRK, stocks$SPY)^2))
+
+stockTable <- rbind(stockTable, tibble(Stock = "JNJ", Intercept = coef(lm(JNJ ~ SPY, data = stocks))[1], Slope = coef(lm(JNJ ~ SPY, data = stocks))[2], RSquared = cor(stocks$JNJ, stocks$SPY)^2))
+
+stockTable <- rbind(stockTable, tibble(Stock = "WMT", Intercept = coef(lm(WMT ~ SPY, data = stocks))[1], Slope = coef(lm(WMT ~ SPY, data = stocks))[2], RSquared = cor(stocks$WMT, stocks$SPY)^2))
+
+stockTable <- rbind(stockTable, tibble(Stock = "TGT", Intercept = coef(lm(TGT ~ SPY, data = stocks))[1], Slope = coef(lm(TGT ~ SPY, data = stocks))[2], RSquared = cor(stocks$TGT, stocks$SPY)^2))
+
+stockTable
+```
+
+The table has 4 columns, the first showing the stock's ticker symbol, the second showing the intercept of the stock from its linear model in relation to SPY's return, the third showing thde slope of the stock from its linear model (percent change in return for each 1 percent change in SPY), and the fourth gives the R-squared of the stock in relation to SPY. 
+
+### Part 3
+
+The stock with the lowest systemic risk is Walmart, since it has the lowest slope of .512. The stock with the highest systemic risk is Apple, because it has the highest slope of 1.065.
+
+## Question 2
+### Part 1
+
+```{r}
+covid <- read.csv("covid.csv")
+Italy <- filter(covid, country == "Italy")
+ItalyModel <- lm(log(deaths) ~ days_since_first_death, data= Italy)
+coef(ItalyModel)
+round(70/(coef(ItalyModel)[2]*100))
+```
+
+The estimated growth rate for Italy is .183 and the estimated doubling time is 4 days. 
+
+### Part 2
+
+```{r}
+Spain <- filter(covid, country == "Spain")
+SpainModel <- lm(log(deaths) ~ days_since_first_death, data= Spain)
+coef(SpainModel)
+round(70/(coef(SpainModel)[2]*100))
+```
+
+The estimated growth rate for Italy is .276 and the estimated doubling time is 3 days. 
+
+### Part 3
+```{r}
+ggplot(covid, aes(x = days_since_first_death, y = deaths, col = country)) + geom_line() + labs(x = "Days Since First Record Death", y = "Deaths" , title = "Line Graph of COVID Deaths in Italy and Spain")
+```
+
+## Question 4
+```{r}
+milk <- read.csv("milk.csv")
+milkModel <- lm(log(sales) ~ log(price), data = milk)
+coef(milkModel)
+```
+
+The estimated price elasticity of milk is -1.618. We take the log of both sales and price and use linear modeling to find the slope, which is our price elasticity. It means for every 1 percent change in price the sales of milk is predicted to drop by -1.618%. 
